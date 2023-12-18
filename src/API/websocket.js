@@ -8,7 +8,7 @@ const httpServer = createServer();
 
 const io = global.ws = new Server(httpServer, {});
 
-module.exports = async () => {
+module.exports = () => {
     io.use((req, next) => {
         const token = req.handshake.query.token;
         if (!token) return next(new Error('You need to pass a token!'));
@@ -74,5 +74,5 @@ module.exports = async () => {
         })
     });
 
-    httpServer.listen(8658);
+    httpServer.listen(4855);
 }
