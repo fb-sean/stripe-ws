@@ -27,7 +27,26 @@ module.exports = async () => {
 
         client.on('ping', () => {
             client.emit('pong');
-        })
+        });
+
+        client.on('request-subscriptions', (data) => {
+            const {
+                bot
+            } = data;
+
+            if (!bot) return;
+
+            if (!bots.allowed.includes(bot)) {
+                return;
+            }
+
+            const subscriptions = StripeHelper.fetchSubscriptions(bot);
+
+            client.emit('subscriptions-list', {
+                bot,
+                subscriptions,
+            });
+        });
 
         client.on('create-checkout', async (data) => {
             const {

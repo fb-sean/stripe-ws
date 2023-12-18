@@ -4,6 +4,24 @@ const bots = require('../CONFIGS/bots.json');
 const stripe = require('stripe')(auth.stripeAPIToken);
 
 module.exports = {
+    async fetchSubscriptions(bot) {
+        let allSubscriptions = [];
+        let lastSubscriptionId = null;
+
+        while (true) {
+            const params = {limit: 100};
+            if (lastSubscriptionId) params.starting_after = lastSubscriptionId;
+
+            const response = await stripe.subscriptions.list(params);
+            const filteredSubscriptions = response.data.filter(subscription => subscription.metadata.bot === bot);
+            allSubscriptions.push(...filteredSubscriptions);
+
+            if (!response.has_more) break;
+            lastSubscriptionId = response.data[response.data.length - 1].id;
+        }
+
+        return allSubscriptions;
+    },
     async createCheckout(userId, serverId, bot) {
         const product = bots.products.find(product => product.name === bot);
         if (!product) {
@@ -20,6 +38,7 @@ module.exports = {
                     userId,
                     serverId,
                     bot,
+                    isCheckout: true,
                 }
             },
             metadata: {
@@ -27,6 +46,7 @@ module.exports = {
                 userId,
                 serverId,
                 bot,
+                isCheckout: true,
             },
             line_items: [
                 {price: product.id, quantity: 1},
@@ -68,6 +88,7 @@ module.exports = {
             return false;
         }
 
+        // This does not mean the subscription is ended!
         ws.emit('subscription-cancelled', {
             userId,
             serverId,

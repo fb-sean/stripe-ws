@@ -28,6 +28,8 @@ module.exports = {
             ...event.data.metadata
         };
 
+        // Events: https://stripe.com/docs/api/events/types
+
         switch (event.type) {
             case 'checkout.session.completed': {
                 await this.processPayment(eventData);
@@ -39,6 +41,11 @@ module.exports = {
 
                 break;
             }
+            case 'customer.subscription.deleted': {
+                await this.processCancel(eventData);
+
+                break;
+            }
             default:
                 break;
         }
@@ -47,5 +54,22 @@ module.exports = {
     },
     async processPayment(eventData) {
 
+    },
+    async processCancel(eventData) {
+        // EventData: https://stripe.com/docs/api/subscriptions/object
+
+        const {
+            metadata: {
+                userId,
+                serverId,
+                bot,
+            },
+        } = eventData;
+
+        ws.emit('subscription-ended', {
+            userId,
+            serverId,
+            bot,
+        });
     }
 }

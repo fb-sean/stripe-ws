@@ -58,6 +58,30 @@ module.exports = async () => {
         });
     });
 
+    app.get('/subscriptions/:bot', async (req, res) => {
+        const {bot} = req.params;
+
+        if (!bots.allowed.includes(bot)) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Invalid bot',
+            });
+        }
+
+        const subscriptions = await StripeHelper.fetchSubscriptions(bot);
+        if (!subscriptions) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Failed to fetch subscriptions',
+            });
+        }
+
+        return res.status(200).send({
+            status: 200,
+            subscriptions,
+        });
+    });
+
     app.post('/cancel', async (req, res) => {
         const {
             subscriptionId,
