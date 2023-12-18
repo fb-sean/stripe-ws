@@ -1,5 +1,6 @@
 const express = require('express');
 const StripeHelper = require("../STRIPE/helper");
+const StripeHandler = require("../STRIPE/handler");
 const bots = require('../CONFIGS/bots');
 const auth = require('../CONFIGS/auth');
 
@@ -97,7 +98,7 @@ module.exports = async () => {
         });
     });
 
-    app.post('/successfully', express.raw({type: 'application/json'}), StripeHelper.handleWebhook.bind(StripeHelper));
+    app.post('/successfully', express.raw({type: 'application/json'}), StripeHandler.handleWebhook.bind(StripeHelper));
 
     app.listen(6567, async () => {
         console.log('[API] => API is now listening on port 6567.');
