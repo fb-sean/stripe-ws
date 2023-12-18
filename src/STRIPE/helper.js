@@ -4,12 +4,31 @@ const bots = require('../CONFIGS/bots.json');
 const stripe = require('stripe')(auth.stripeAPIToken);
 
 module.exports = {
-    async fetchSubscriptions(bot) {
+    async updateSubscription(subscriptionId, oldMetaData, newMetaData) {
+        return await stripe.subscriptions.update(
+            subscriptionId,
+            {
+                metadata: {
+                    ...oldMetaData,
+                    ...newMetaData
+                },
+            }
+        );
+    },
+    async fetchSubscriptions(bot, customerId = null) {
         let allSubscriptions = [];
         let lastSubscriptionId = null;
 
+        const baseParams = {
+            limit: 100,
+            customer: customerId ?? undefined,
+        };
+
         while (true) {
-            const params = {limit: 100};
+            const params = {
+                ...baseParams
+            };
+
             if (lastSubscriptionId) params.starting_after = lastSubscriptionId;
 
             const response = await stripe.subscriptions.list(params);
@@ -92,6 +111,8 @@ module.exports = {
         ws.emit('subscription-cancelled', {
             userId,
             serverId,
+            customerId,
+            subscriptionId,
             bot,
         });
 

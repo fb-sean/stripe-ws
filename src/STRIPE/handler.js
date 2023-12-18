@@ -1,5 +1,6 @@
 const auth = require('../CONFIGS/auth.json');
 const bots = require('../CONFIGS/bots.json');
+const StripeHelper = require("./helper");
 
 const stripe = require('stripe')(auth.stripeAPIToken);
 
@@ -53,7 +54,42 @@ module.exports = {
         return res.json({received: true});
     },
     async processPayment(eventData) {
+        const {
+            customer,
+            metadata
+        } = eventData;
 
+        const {
+            userId,
+            serverId,
+            bot,
+            isCheckout,
+        } = metadata;
+
+        if (!customer) return;
+
+        const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
+        if (isCheckout) {
+            await StripeHelper.updateSubscription(subscriptions[0].id, metadata, {
+                isCheckout: false,
+            });
+
+            ws.emit('subscription-created', {
+                userId,
+                serverId,
+                customerId: customer,
+                subscriptionId: subscriptions[0].id,
+                bot,
+            });
+        } else {
+            ws.emit('subscription-renewed', {
+                userId,
+                serverId,
+                customerId: customer,
+                subscriptionId: subscriptions[0].id,
+                bot,
+            });
+        }
     },
     async processCancel(eventData) {
         // EventData: https://stripe.com/docs/api/subscriptions/object
@@ -64,11 +100,15 @@ module.exports = {
                 serverId,
                 bot,
             },
+            id,
+            customer
         } = eventData;
 
         ws.emit('subscription-ended', {
             userId,
             serverId,
+            customerId: customer,
+            subscriptionId: id,
             bot,
         });
     }
