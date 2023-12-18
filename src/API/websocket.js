@@ -75,4 +75,6 @@ module.exports = () => {
     });
 
     httpServer.listen(4855);
+
+    console.log('[Websocket] => Websocket is now listening on port 4855.');
 }

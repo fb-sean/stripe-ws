@@ -125,6 +125,6 @@ module.exports = () => {
     app.post('/successfully', express.raw({type: 'application/json'}), StripeHandler.handleWebhook.bind(StripeHelper));
 
     app.listen(4854, async () => {
-        console.log('[API] => API is now listening on port 6567.');
+        console.log('[API] => API is now listening on port 4854.');
     });
 }
