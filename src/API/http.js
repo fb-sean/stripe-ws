@@ -44,6 +44,13 @@ module.exports = async () => {
 
         const link = await StripeHelper.createCheckout(userId, serverId, bot);
 
+        if (!link) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Failed to create checkout',
+            });
+        }
+
         return res.status(200).send({
             status: 200,
             link
@@ -52,12 +59,14 @@ module.exports = async () => {
 
     app.post('/cancel', async (req, res) => {
         const {
+            subscriptionId,
+            customerId,
             userId,
             serverId,
-            bot,
+            bot
         } = req.body;
 
-        if (!userId || !serverId || !bot) return res.status(400).json({
+        if ((!subscriptionId && !customerId) || !bot) return res.status(400).json({
             status: 400,
             message: 'Missing parameters',
         });
@@ -69,7 +78,23 @@ module.exports = async () => {
             });
         }
 
-        return await StripeHelper.cancelSubscription(userId, serverId, bot);
+        const billing_cycle_anchor = await StripeHelper.cancelSubscription(subscriptionId, customerId, userId, serverId, bot);
+        if (!billing_cycle_anchor) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Failed to cancel subscription',
+            });
+        }
+
+        return res.status(200).send({
+            status: 200,
+            data: {
+                billing_cycle_anchor,
+                serverId,
+                userId,
+                bot,
+            },
+        });
     });
 
     app.post('/successfully', express.raw({type: 'application/json'}), StripeHelper.handleWebhook.bind(StripeHelper));

@@ -40,6 +40,8 @@ module.exports = async () => {
 
             const link = await StripeHelper.createCheckout(userId, serverId, bot);
 
+            if (!link) return;
+
             client.emit('checkout-link', {
                 bot,
                 userId,
