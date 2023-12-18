@@ -11,9 +11,17 @@ module.exports = {
         }
 
         const session = await stripe.checkout.sessions.create({
-            success_url: product.success_url.replace('{serverId}', serverId).replace('{userId}', userId),
-            cancel_url: product.cancel_url.replace('{serverId}', serverId).replace('{userId}', userId),
+            success_url: product.success_url ? product.success_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
+            cancel_url: product.cancel_url ? product.cancel_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
             allow_promotion_codes: true,
+            subscription_data: {
+                metadata: {
+                    productId: product.id,
+                    userId,
+                    serverId,
+                    bot,
+                }
+            },
             metadata: {
                 productId: product.id,
                 userId,
@@ -23,7 +31,7 @@ module.exports = {
             line_items: [
                 {price: product.id, quantity: 1},
             ],
-            mode: 'subscription',
+            mode: product.mode ?? 'subscription',
         });
 
         return session.url;
