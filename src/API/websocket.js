@@ -25,6 +25,10 @@ module.exports = async () => {
             console.log('[Websocket] => User disconnected.');
         });
 
+        client.on('ping', () => {
+            client.emit('pong');
+        })
+
         client.on('create-checkout', async (data) => {
             const {
                 userId,
