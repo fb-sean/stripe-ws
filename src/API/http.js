@@ -10,7 +10,7 @@ module.exports = () => {
     app.set('trust proxy', 1);
 
     app.use((req, res, next) => {
-        const token = req.headers['Authorization'];
+        const token = req.headers['authorization'];
         if (!token) return res.status(400).json({
             status: 400,
             message: 'You need to pass a token!',
