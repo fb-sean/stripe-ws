@@ -24,6 +24,9 @@ module.exports = () => {
         next();
     });
 
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+
     app.post('/create', async (req, res) => {
         const {
             userId,
