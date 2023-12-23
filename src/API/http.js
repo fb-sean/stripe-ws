@@ -117,8 +117,8 @@ module.exports = () => {
             });
         }
 
-        const billing_cycle_anchor = await StripeHelper.cancelSubscription(subscriptionId, customerId, userId, serverId, bot);
-        if (!billing_cycle_anchor) {
+        const cancel_at = await StripeHelper.cancelSubscription(subscriptionId, customerId, userId, serverId, bot);
+        if (!cancel_at) {
             return res.status(400).json({
                 status: 400,
                 message: 'Failed to cancel subscription',
@@ -128,7 +128,7 @@ module.exports = () => {
         return res.status(200).send({
             status: 200,
             data: {
-                billing_cycle_anchor,
+                cancel_at,
                 serverId,
                 userId,
                 bot,

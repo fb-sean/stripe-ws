@@ -115,7 +115,7 @@ async function cancelSubscription(subscriptionId, customerId, userId, serverId, 
         bot,
     });
 
-    return subscriptionData.billing_cycle_anchor;
+    return subscriptionData.cancel_at;
 }
 
 module.exports = {
