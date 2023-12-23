@@ -29,7 +29,6 @@ async function handleWebhook(req, res) {
     };
 
     // Events: https://stripe.com/docs/api/events/types
-
     switch (event.type) {
         case 'checkout.session.completed': {
             await processPayment(eventData);
@@ -46,12 +45,17 @@ async function handleWebhook(req, res) {
 
             break;
         }
+        case 'subscription_schedule.expiring': {
+            await processExpiring(eventData);
+
+            break;
+        }
         default:
             break;
     }
 
     return res.json({received: true});
-};
+}
 
 async function processPayment(eventData) {
     const {
@@ -70,8 +74,12 @@ async function processPayment(eventData) {
 
     const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
     if (isCheckout) {
-        await StripeHelper.updateSubscription(subscriptions[0].id, metadata, {
+        const newMetadata = {
+            ...metadata,
             isCheckout: false,
+        }
+        await StripeHelper.updateSubscription(subscriptions[0].id, {
+            metadata: newMetadata,
         });
 
         ws.emit('subscription-created', {
@@ -90,11 +98,10 @@ async function processPayment(eventData) {
             bot,
         });
     }
-};
+}
 
-async function processCancel(eventData) {
+function processCancel(eventData) {
     // EventData: https://stripe.com/docs/api/subscriptions/object
-
     const {
         metadata: {
             userId,
@@ -112,7 +119,28 @@ async function processCancel(eventData) {
         subscriptionId: id,
         bot,
     });
-};
+}
+
+function processExpiring(eventData) {
+    const {
+        metadata: {
+            userId,
+            serverId,
+            bot,
+        },
+        subscription,
+        customer
+    } = eventData;
+
+    // Occurs 7 days before a subscription schedule will expire.
+    ws.emit('subscription-expiring', {
+        userId,
+        serverId,
+        customerId: customer,
+        subscriptionId: subscription,
+        bot,
+    });
+}
 
 module.exports = {
     handleWebhook,
