@@ -10,6 +10,12 @@ module.exports = () => {
     app.set('trust proxy', 1);
 
     app.use((req, res, next) => {
+        if (req.originalUrl === '/successfully') {
+            next();
+
+            return;
+        }
+
         const token = req.headers['authorization'];
         if (!token) return res.status(400).json({
             status: 400,
