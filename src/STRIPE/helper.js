@@ -42,7 +42,7 @@ module.exports = {
         return allSubscriptions;
     },
     async createCheckout(userId, serverId, bot) {
-        const product = bots.products.find(product => product.name === bot);
+        const product = bots.products[bot];
         if (!product) {
             return false;
         }
