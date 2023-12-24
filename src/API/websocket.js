@@ -1,8 +1,9 @@
 const {createServer} = require('http');
 const {Server} = require('socket.io');
 const StripeHelper = require("../STRIPE/helper");
-const bots = require("../CONFIGS/bots.json");
-const auth = require("../CONFIGS/auth.json");
+const bots = require("../CONFIGS/bots");
+const auth = require("../CONFIGS/auth");
+const ports = require('../CONFIGS/port')
 
 const httpServer = createServer();
 
@@ -74,7 +75,8 @@ module.exports = () => {
         })
     });
 
-    httpServer.listen(4855);
+    httpServer.listen(ports.wsPort || 4855)
 
-    console.log('[Websocket] => Websocket is now listening on port 4855.');
+    onsole.log("[Websocket] => Websocket is now listening on port " + ports.wsPort || "4855");
+
 }
