@@ -75,7 +75,8 @@ module.exports = () => {
         })
     });
 
-    httpServer.listen(ports.wsPort || "4855", async () => {
-        console.log("[Websocket] => Websocket is now listening on port " + ports.wsPort || "4855");
-    });
+    httpServer.listen(ports.wsPort || "4855")
+
+    onsole.log("[Websocket] => Websocket is now listening on port " + ports.wsPort || "4855");
+
 }
