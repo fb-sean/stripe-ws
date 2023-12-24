@@ -43,6 +43,15 @@ This file specifies the allowed bots and product configurations for Stripe trans
 }
 ```
 
+### `src/CONFIGS/port.json`
+This file specifies the ports the service should run on.
+```json
+{
+  "httpPort": "", // Default: 4854
+  "wsPort": "" // Default: 4855
+}
+```
+
 ## Dynamic URLs with Placeholders
 In the `bots.json` file, you can use placeholders in `success_url` and `cancel_url` fields, which will be dynamically replaced:
 
