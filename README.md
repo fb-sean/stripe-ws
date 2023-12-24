@@ -47,8 +47,8 @@ This file specifies the allowed bots and product configurations for Stripe trans
 This file specifies the ports the service should run on.
 ```json
 {
-  "httpPort": "", // Default: 4854
-  "wsPort": "" // Default: 4855
+  "httpPort": 8080, // Default: 4854
+  "wsPort": 8081 // Default: 4855
 }
 ```
 
