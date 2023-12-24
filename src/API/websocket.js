@@ -1,8 +1,8 @@
 const {createServer} = require('http');
 const {Server} = require('socket.io');
 const StripeHelper = require("../STRIPE/helper");
-const bots = require("../CONFIGS/bots.json");
-const auth = require("../CONFIGS/auth.json");
+const bots = require("../CONFIGS/bots");
+const auth = require("../CONFIGS/auth");
 const ports = require('../CONFIGS/port')
 
 const httpServer = createServer();
