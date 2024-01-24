@@ -44,6 +44,7 @@ module.exports = () => {
             userId,
             serverId,
             bot,
+            plan,
         } = req.body;
 
         if (!userId || !serverId || !bot) return res.status(400).json({
@@ -58,7 +59,7 @@ module.exports = () => {
             });
         }
 
-        const link = await StripeHelper.createCheckout(userId, serverId, bot);
+        const link = await StripeHelper.createCheckout(userId, serverId, bot, plan);
 
         if (!link) {
             return res.status(400).json({

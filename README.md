@@ -26,6 +26,7 @@ This file contains authentication tokens necessary for Stripe and websocket comm
 
 ### `src/CONFIGS/bots.json`
 This file specifies the allowed bots and product configurations for Stripe transactions.
+You can choose either provide an id array to support multiple plans or a single id for a single plan.
 ```json
 {
   "allowed": [
@@ -34,7 +35,11 @@ This file specifies the allowed bots and product configurations for Stripe trans
   ],
   "products": {
     "bot_name": {
-      "id": "<product_id>",
+      "id": "<price_id>",
+      "ids": {
+        "monthly": "<price_id>", 
+        "yearly": "<price_id>"
+      },
       "success_url": "<url_on_success>",
       "cancel_url": "<url_on_cancel>"
     },

@@ -54,6 +54,7 @@ module.exports = () => {
                 userId,
                 serverId,
                 bot,
+                plan
             } = data;
 
             if (!userId || !serverId || !bot) return;
@@ -62,7 +63,7 @@ module.exports = () => {
                 return;
             }
 
-            const link = await StripeHelper.createCheckout(userId, serverId, bot);
+            const link = await StripeHelper.createCheckout(userId, serverId, bot, plan);
 
             if (!link) return;
 

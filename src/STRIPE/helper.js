@@ -39,9 +39,14 @@ async function fetchSubscriptions(bot, customerId = null) {
     return allSubscriptions;
 }
 
-async function createCheckout(userId, serverId, bot) {
+async function createCheckout(userId, serverId, bot, plan = null) {
     const product = bots.products[bot];
     if (!product) {
+        return false;
+    }
+
+    const priceId = Array.isArray(product.ids) ? (plan && product.ids[plan] ? product.ids[plan] : product.ids[0]) : product.id;
+    if (!priceId) {
         return false;
     }
 
@@ -51,7 +56,7 @@ async function createCheckout(userId, serverId, bot) {
         allow_promotion_codes: true,
         subscription_data: {
             metadata: {
-                productId: product.id,
+                productId: priceId,
                 userId,
                 serverId,
                 bot,
@@ -59,14 +64,14 @@ async function createCheckout(userId, serverId, bot) {
             }
         },
         metadata: {
-            productId: product.id,
+            productId: priceId,
             userId,
             serverId,
             bot,
             isCheckout: true,
         },
         line_items: [
-            {price: product.id, quantity: 1},
+            {price: priceId, quantity: 1},
         ],
         mode: product.mode ?? 'subscription',
     });
