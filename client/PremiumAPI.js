@@ -33,11 +33,12 @@ class PremiumAPI {
         return response.data.data.cancel_at;
     }
 
-    static async createPremiumCheckout(userId, serverId) {
+    static async createPremiumCheckout(userId, serverId, plan) {
         const response = await axios.post(premiumAPI + 'create', {
             userId,
             serverId,
             bot,
+            plan,
         }, {
             headers: {
                 'Authorization': httpToken
@@ -95,6 +96,7 @@ class PremiumAPI {
         * serverId,
         * customerId,
         * subscriptionId,
+        * productId, // Can be used to check which plan the user have ex: yearly, monthly
         * bot,
         * }
         */
@@ -102,29 +104,35 @@ class PremiumAPI {
         this.socket.on('subscription-created', async (data) => {
             if (data.bot !== bot) return;
 
-            await this.handleCreate(data.userId, data.serverId, data.customerId, data.subscriptionId);
+            await this.handleCreate(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
         });
 
         this.socket.on('subscription-renewed', async (data) => {
             if (data.bot !== bot) return;
 
-            await this.handleRenew(data.userId, data.serverId, data.customerId, data.subscriptionId);
+            await this.handleRenew(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
         });
 
         this.socket.on('subscription-ended', async (data) => {
             if (data.bot !== bot) return;
 
-            await this.handleEnd(data.userId, data.serverId, data.customerId, data.subscriptionId);
+            await this.handleEnd(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
         });
 
         this.socket.on('subscription-canceled', async (data) => {
             if (data.bot !== bot) return;
 
-            await this.handleCanceled(data.userId, data.serverId, data.customerId, data.subscriptionId);
+            await this.handleCanceled(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
+        });
+
+        this.socket.on('subscription-expiring', async (data) => {
+            if (data.bot !== bot) return;
+
+            await this.handleExpiring(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
         });
     }
 
-    async handleCreate(userId, serverId, customerId, subscriptionId) {
+    async handleCreate(userId, serverId, customerId, subscriptionId, productId) {
         console.info(`Subscription created for ${userId} on ${serverId}`);
 
         await Premium.create({
@@ -132,32 +140,39 @@ class PremiumAPI {
             userId,
             customerId,
             subscriptionId,
+            productId,
             timestamp: Date.now(),
         });
     }
 
-    async handleRenew(userId, serverId, customerId, subscriptionId) {
+    async handleRenew(userId, serverId, customerId, subscriptionId, productId) {
         console.info(`Subscription renewed for ${userId} on ${serverId}`);
     }
 
-    async handleEnd(userId, serverId, customerId, subscriptionId) {
+    async handleEnd(userId, serverId, customerId, subscriptionId, productId) {
         console.info(`Subscription ended for ${userId} on ${serverId}`);
 
         await Premium.deleteOne({
             serverId,
+            subscriptionId, // When you use multiple plans you need this, else you might delete the wrong subscription
             userId,
         });
     }
 
-    async handleCanceled(userId, serverId, customerId, subscriptionId) {
+    async handleCanceled(userId, serverId, customerId, subscriptionId, productId) {
         console.info(`Subscription canceled for ${userId} on ${serverId}`);
 
         await Premium.updateOne({
             serverId,
+            subscriptionId, // When you use multiple plans you need this, else you might delete the wrong subscription
             userId,
         }, {
             canceled: true,
         });
+    }
+
+    async handleExpiring(userId, serverId, customerId, subscriptionId, productId) {
+        console.info(`Subscription expiring for ${userId} on ${serverId} soon`);
     }
 }
 

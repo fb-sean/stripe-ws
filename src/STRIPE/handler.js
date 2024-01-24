@@ -68,6 +68,7 @@ async function processPayment(eventData) {
         serverId,
         bot,
         isCheckout,
+        productId,
     } = metadata;
 
     if (!customer) return;
@@ -87,6 +88,7 @@ async function processPayment(eventData) {
             serverId,
             customerId: customer,
             subscriptionId: subscriptions[0].id,
+            productId,
             bot,
         });
     } else {
@@ -95,6 +97,7 @@ async function processPayment(eventData) {
             serverId,
             customerId: customer,
             subscriptionId: subscriptions[0].id,
+            productId,
             bot,
         });
     }
@@ -106,6 +109,7 @@ function processCancel(eventData) {
         metadata: {
             userId,
             serverId,
+            productId,
             bot,
         },
         id,
@@ -117,6 +121,7 @@ function processCancel(eventData) {
         serverId,
         customerId: customer,
         subscriptionId: id,
+        productId,
         bot,
     });
 }
@@ -126,6 +131,7 @@ function processExpiring(eventData) {
         metadata: {
             userId,
             serverId,
+            productId,
             bot,
         },
         subscription,
@@ -138,12 +144,11 @@ function processExpiring(eventData) {
         serverId,
         customerId: customer,
         subscriptionId: subscription,
+        productId,
         bot,
     });
 }
 
 module.exports = {
     handleWebhook,
-    processPayment,
-    processCancel,
 };

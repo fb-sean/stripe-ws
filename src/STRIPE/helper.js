@@ -117,6 +117,7 @@ async function cancelSubscription(subscriptionId, customerId, userId, serverId, 
         serverId,
         customerId,
         subscriptionId,
+        productId: subscriptionData?.metadata?.productId ?? null,
         bot,
     });
 

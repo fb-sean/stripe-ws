@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-module.exports = mongoose.model('',  mongoose.Schema({
+// @TODO: Add your mongodb collection name here
+module.exports = mongoose.model('', mongoose.Schema({
     serverId: {
         type: String,
     },
@@ -11,6 +12,9 @@ module.exports = mongoose.model('',  mongoose.Schema({
         type: String,
     },
     subscriptionId: {
+        type: String,
+    },
+    productId: {
         type: String,
     },
     canceled: {
