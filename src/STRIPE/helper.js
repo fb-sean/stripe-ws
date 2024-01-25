@@ -45,7 +45,7 @@ async function createCheckout(userId, serverId, bot, plan = null) {
         return false;
     }
 
-    const priceId = Array.isArray(product.ids) ? (plan && product.ids[plan] ? product.ids[plan] : product.ids[0]) : product.id;
+    const priceId = typeof product.ids === 'object' ? (plan && product.ids[plan] ? product.ids[plan] : [...Object.values(product.ids)][0]) : product.id;
     if (!priceId) {
         return false;
     }
