@@ -22,6 +22,8 @@ module.exports = () => {
     });
 
     io.on('connection', client => {
+        console.log(`${new Date().toISOString()} -> [Websocket] => User connected. ID: ${client.id}`);
+
         client.on('disconnect', () => {
             console.log(`${new Date().toISOString()} -> [Websocket] => User disconnected.`);
         });
