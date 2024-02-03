@@ -74,10 +74,14 @@ async function processPayment(eventData) {
         productId,
     } = metadata;
 
-    if (!customer) return;
+    if (!customer || !bot) return;
 
     const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
     const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
+
+    if (!subscription?.id) {
+        return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer} BOT: ${bot} USER: ${userId} SERVER: ${serverId} PRODUCT: ${productId}`);
+    }
 
     if (isCheckout) {
         const newMetadata = {
