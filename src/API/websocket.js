@@ -23,7 +23,7 @@ module.exports = () => {
 
     io.on('connection', client => {
         client.on('disconnect', () => {
-            console.log('[Websocket] => User disconnected.');
+            console.log(`${new Date().toISOString()} -> [Websocket] => User disconnected.`);
         });
 
         client.on('ping', () => {
@@ -78,5 +78,5 @@ module.exports = () => {
 
     httpServer.listen(ports.wsPort || 4855)
 
-    console.log("[Websocket] => Websocket is now listening on port " + ports.wsPort || "4855");
+    console.log(`${new Date().toISOString()} -> [Websocket] => Websocket is now listening on port ` + ports.wsPort || "4855");
 }

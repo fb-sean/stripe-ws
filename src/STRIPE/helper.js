@@ -103,7 +103,7 @@ async function cancelSubscription(subscriptionId, customerId, userId, serverId, 
             cancel_at_period_end: true,
         });
     } catch (err) {
-        console.log('[Stripe] => Failed to cancel subscription');
+        console.log(`${new Date().toISOString()} -> [Stripe] => Failed to cancel subscription`);
         console.log(err);
         return false;
     }

@@ -14,7 +14,7 @@ async function handleWebhook(req, res) {
     try {
         event = stripe.webhooks.constructEvent(req.body, header, auth.stripeSecret);
     } catch (err) {
-        console.log(`Webhook Error: ${err.message}`);
+        console.log(`${new Date().toISOString()} -> Webhook Error: ${err.message}`);
         return res
             .status(400)
             .send({
@@ -27,6 +27,8 @@ async function handleWebhook(req, res) {
         ...event.data.object,
         ...event.data.metadata
     };
+
+    await delay(5000); // Might fix an issue with sub not existing
 
     // Events: https://stripe.com/docs/api/events/types
     switch (event.type) {
@@ -46,6 +48,7 @@ async function handleWebhook(req, res) {
             break;
         }
         case 'subscription_schedule.expiring': {
+
             await processExpiring(eventData);
 
             break;
@@ -74,12 +77,15 @@ async function processPayment(eventData) {
     if (!customer) return;
 
     const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
+    const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
+
     if (isCheckout) {
         const newMetadata = {
             ...metadata,
             isCheckout: false,
         }
-        await StripeHelper.updateSubscription(subscriptions[0].id, {
+
+        await StripeHelper.updateSubscription(subscription.id, {
             metadata: newMetadata,
         });
 
@@ -87,7 +93,7 @@ async function processPayment(eventData) {
             userId,
             serverId,
             customerId: customer,
-            subscriptionId: subscriptions[0].id,
+            subscriptionId: subscription.id,
             productId,
             bot,
         });
@@ -96,7 +102,7 @@ async function processPayment(eventData) {
             userId,
             serverId,
             customerId: customer,
-            subscriptionId: subscriptions[0].id,
+            subscriptionId: subscription.id,
             productId,
             bot,
         });
@@ -147,6 +153,10 @@ function processExpiring(eventData) {
         productId,
         bot,
     });
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 module.exports = {
