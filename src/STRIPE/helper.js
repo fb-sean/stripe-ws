@@ -39,7 +39,7 @@ async function fetchSubscriptions(bot, customerId = null) {
     return allSubscriptions;
 }
 
-async function createCheckout(userId, serverId, bot, plan = null) {
+async function createCheckout(userId, serverId = 'none', bot, plan = null) {
     const product = bots.products[bot];
     if (!product) {
         return false;

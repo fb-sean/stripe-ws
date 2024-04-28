@@ -47,7 +47,7 @@ module.exports = () => {
             plan,
         } = req.body;
 
-        if (!userId || !serverId || !bot) return res.status(400).json({
+        if (!userId || !bot) return res.status(400).json({
             status: 400,
             message: 'Missing parameters',
         });
