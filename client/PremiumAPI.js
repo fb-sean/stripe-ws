@@ -101,21 +101,22 @@ class PremiumAPI {
         * }
         */
 
-        this.socket.on('subscription-created', async (data) => {
+        this.socket.on('subscription-payment-succeeded', async (data) => {
             if (data.bot !== bot) return;
 
-            await this.handleCreate(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
-        });
-
-        this.socket.on('subscription-renewed', async (data) => {
-            if (data.bot !== bot) return;
-
-            await this.handleRenew(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
+            await this.handlePaymentSucceeded(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
         });
 
         this.socket.on('subscription-ended', async (data) => {
             if (data.bot !== bot) return;
 
+            await this.handleEnd(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
+        });
+
+        this.socket.on('subscription-payment-failed', async (data) => {
+            if (data.bot !== bot) return;
+
+            // You don't need to do this logic the same as I do, but in my eyes, when the payment fails, the subscription should be canceled.
             await this.handleEnd(data.userId, data.serverId, data.customerId, data.subscriptionId, data.productId);
         });
 
@@ -132,21 +133,28 @@ class PremiumAPI {
         });
     }
 
-    async handleCreate(userId, serverId, customerId, subscriptionId, productId) {
-        console.info(`Subscription created for ${userId} on ${serverId}`);
-
-        await Premium.create({
+    async handlePaymentSucceeded(userId, serverId, customerId, subscriptionId, productId) {
+        const isAlreadyPremium = await Premium.exists({
             serverId,
-            userId,
-            customerId,
             subscriptionId,
-            productId,
-            timestamp: Date.now(),
+            userId,
         });
-    }
 
-    async handleRenew(userId, serverId, customerId, subscriptionId, productId) {
-        console.info(`Subscription renewed for ${userId} on ${serverId}`);
+        if (!isAlreadyPremium) {
+            console.info(`Subscription created for ${userId} on ${serverId}`);
+
+            await Premium.create({
+                serverId,
+                userId,
+                customerId,
+                subscriptionId,
+                productId,
+                timestamp: Date.now(),
+            });
+        } else {
+            // This event gets emitted when someone successfully pays for a subscription so either the user renewed or bought a new subscription
+            console.info(`Subscription renewed for ${userId} on ${serverId}`);
+        }
     }
 
     async handleEnd(userId, serverId, customerId, subscriptionId, productId) {
