@@ -42,6 +42,12 @@ async function handleWebhook(req, res) {
 
             break;
         }
+        case 'charge.failed': {
+
+            await processFailedPayment(eventData);
+
+            break;
+        }
         case 'customer.subscription.deleted': {
             await processCancel(eventData);
 
@@ -58,6 +64,38 @@ async function handleWebhook(req, res) {
     }
 
     return res.json({received: true});
+}
+
+async function processFailedPayment(eventData) {
+    const {
+        customer,
+        failure_message
+    } = eventData;
+
+    if (!customer) return;
+
+    const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
+    const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
+
+    if (!subscription?.id) {
+        return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer} BOT: ${bot} USER: ${userId} SERVER: ${serverId} PRODUCT: ${productId}`);
+    }
+
+    const {
+        userId,
+        serverId,
+        bot,
+        productId,
+    } = subscription.metadata;
+
+    ws.emit('subscription-payment-failed', {
+        userId,
+        serverId,
+        customerId: customer,
+        subscriptionId: subscription.id,
+        productId,
+        bot,
+    });
 }
 
 async function processPayment(eventData) {
@@ -93,7 +131,7 @@ async function processPayment(eventData) {
             metadata: newMetadata,
         });
 
-        ws.emit('subscription-created', {
+        ws.emit('subscription-session-completed', {
             userId,
             serverId,
             customerId: customer,
@@ -102,7 +140,7 @@ async function processPayment(eventData) {
             bot,
         });
     } else {
-        ws.emit('subscription-renewed', {
+        ws.emit('subscription-payment-succeeded', {
             userId,
             serverId,
             customerId: customer,

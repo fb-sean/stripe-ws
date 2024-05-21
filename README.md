@@ -13,6 +13,14 @@ To get started with Stripe-WS:
 ## Configuration Files
 You need to create and configure the following JSON files:
 
+## Events
+- subscription-payment-failed | Happens when a subscription payment fails. **Use that to invalidate the subscription.**
+- subscription-session-completed | Happens when a subscription session is completed. 
+- subscription-payment-succeeded | Happens when a subscription payment is successful. **Use that to validate the subscription.**
+- subscription-ended | Happens when a subscription is ended. **Use that to delete the subscription.**
+- subscription-expiring | Happens 7 days before a subscription expires. 
+- subscription-canceled | Happens when a user cancels a subscription. 
+
 ### `src/CONFIGS/auth.json`
 This file contains authentication tokens necessary for Stripe and websocket communication.
 ```json
