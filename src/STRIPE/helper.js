@@ -12,7 +12,7 @@ async function updateSubscription(subscriptionId, data) {
     );
 }
 
-async function fetchSubscriptions(bot, customerId = null) {
+async function fetchSubscriptions(bot = null, customerId = null) {
     let allSubscriptions = [];
     let lastSubscriptionId = null;
 
@@ -29,7 +29,7 @@ async function fetchSubscriptions(bot, customerId = null) {
         if (lastSubscriptionId) params.starting_after = lastSubscriptionId;
 
         const response = await stripe.subscriptions.list(params);
-        const filteredSubscriptions = response.data.filter(subscription => subscription.metadata.bot === bot);
+        const filteredSubscriptions = bot ? response.data.filter(subscription => subscription.metadata.bot === bot) : response.data;
         allSubscriptions.push(...filteredSubscriptions);
 
         if (!response.has_more) break;

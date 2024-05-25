@@ -43,7 +43,6 @@ async function handleWebhook(req, res) {
             break;
         }
         case 'charge.failed': {
-
             await processFailedPayment(eventData);
 
             break;
@@ -74,11 +73,11 @@ async function processFailedPayment(eventData) {
 
     if (!customer) return;
 
-    const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
+    const subscriptions = await StripeHelper.fetchSubscriptions(null, customer);
     const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
 
     if (!subscription?.id) {
-        return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer} BOT: ${bot} USER: ${userId} SERVER: ${serverId} PRODUCT: ${productId}`);
+        return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer}`);
     }
 
     const {
@@ -95,6 +94,7 @@ async function processFailedPayment(eventData) {
         subscriptionId: subscription.id,
         productId,
         bot,
+        failure_message
     });
 }
 
