@@ -100,8 +100,21 @@ async function processFailedPayment(eventData) {
 async function processPayment(eventData) {
     const {
         customer,
-        metadata
     } = eventData;
+
+    let metadata = eventData.metadata ?? null;
+    let subscriptionId = eventData.subscription ?? null;
+    if (!metadata || !subscriptionId) {
+        const subscriptions = await StripeHelper.fetchSubscriptions(null, customer);
+        const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
+
+        if (!subscription?.id) {
+            return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer}`);
+        }
+
+        metadata = subscription.metadata;
+        subscriptionId = subscription.id;
+    }
 
     const {
         userId,
@@ -111,22 +124,13 @@ async function processPayment(eventData) {
         productId,
     } = metadata;
 
-    if (!customer || !bot) return;
-
-    const subscriptions = await StripeHelper.fetchSubscriptions(bot ?? 'memer', customer); // 'memer' because of old customers who didn't have a bot metadata
-    const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
-
-    if (!subscription?.id) {
-        return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer} BOT: ${bot} USER: ${userId} SERVER: ${serverId} PRODUCT: ${productId}`);
-    }
-
     if (isCheckout) {
         const newMetadata = {
             ...metadata,
             isCheckout: false,
         }
 
-        await StripeHelper.updateSubscription(subscription.id, {
+        await StripeHelper.updateSubscription(subscriptionId, {
             metadata: newMetadata,
         });
 
@@ -134,7 +138,7 @@ async function processPayment(eventData) {
             userId,
             serverId,
             customerId: customer,
-            subscriptionId: subscription.id,
+            subscriptionId: subscriptionId,
             productId,
             bot,
         });
@@ -143,7 +147,7 @@ async function processPayment(eventData) {
             userId,
             serverId,
             customerId: customer,
-            subscriptionId: subscription.id,
+            subscriptionId: subscriptionId,
             productId,
             bot,
         });
