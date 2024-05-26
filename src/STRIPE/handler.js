@@ -124,7 +124,7 @@ async function processPayment(eventData) {
         productId,
     } = metadata;
 
-    if (isCheckout) {
+    if (isCheckout === 'true') {
         const newMetadata = {
             ...metadata,
             isCheckout: false,
@@ -133,6 +133,8 @@ async function processPayment(eventData) {
         await StripeHelper.updateSubscription(subscriptionId, {
             metadata: newMetadata,
         });
+
+        console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-session-completed for ${userId}`);
 
         ws.emit('subscription-session-completed', {
             userId,
@@ -143,6 +145,8 @@ async function processPayment(eventData) {
             bot,
         });
     } else {
+        console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-payment-succeeded for ${userId}`);
+
         ws.emit('subscription-payment-succeeded', {
             userId,
             serverId,
