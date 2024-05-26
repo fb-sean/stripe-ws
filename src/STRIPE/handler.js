@@ -87,6 +87,8 @@ async function processFailedPayment(eventData) {
         productId,
     } = metadata;
 
+    console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-payment-failed for ${userId}`);
+
     ws.emit('subscription-payment-failed', {
         userId,
         serverId,
@@ -192,6 +194,8 @@ function processExpiring(eventData) {
         subscription,
         customer
     } = eventData;
+
+    console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-expiring for ${userId}`);
 
     // Occurs 7 days before a subscription schedule will expire.
     ws.emit('subscription-expiring', {
