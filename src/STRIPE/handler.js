@@ -135,7 +135,9 @@ async function processPayment(eventData) {
         await StripeHelper.updateSubscription(subscriptionId, {
             metadata: newMetadata,
         });
+    }
 
+    if (isCheckout === 'true' && eventData.amount_total !== 0) {
         console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-session-completed for ${userId}`);
 
         ws.emit('subscription-session-completed', {
