@@ -33,7 +33,7 @@ async function handleWebhook(req, res) {
     // Events: https://stripe.com/docs/api/events/types
     switch (event.type) {
         case 'checkout.session.completed': {
-            await processPayment(eventData);
+            await processCompletedSession(eventData);
 
             break;
         }
@@ -99,6 +99,51 @@ async function processFailedPayment(eventData) {
     });
 }
 
+async function processCompletedSession(eventData) {
+    const {
+        customer,
+    } = eventData;
+
+    let metadata = eventData.metadata ?? null;
+    let subscriptionId = eventData.subscription ?? null;
+    if (!metadata || !subscriptionId) {
+        const subscriptions = await StripeHelper.fetchSubscriptions(null, customer);
+        const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
+
+        if (!subscription?.id) {
+            return console.log(`${new Date().toISOString()} -> Webhook Issue: Customer without subscription ID: ${customer}`);
+        }
+
+        metadata = subscription.metadata;
+        subscriptionId = subscription.id;
+    }
+
+    const {
+        userId,
+        serverId,
+        bot,
+        productId,
+    } = metadata;
+
+    await StripeHelper.updateSubscription(subscriptionId, {
+        metadata: {
+            ...metadata,
+            isCheckout: false,
+        },
+    });
+
+    console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-session-completed for ${userId}`);
+
+    ws.emit('subscription-session-completed', {
+        userId,
+        serverId,
+        customerId: customer,
+        subscriptionId: subscriptionId,
+        productId,
+        bot,
+    });
+}
+
 async function processPayment(eventData) {
     const {
         customer,
@@ -122,44 +167,19 @@ async function processPayment(eventData) {
         userId,
         serverId,
         bot,
-        isCheckout,
         productId,
     } = metadata;
 
-    if (isCheckout === 'true') {
-        const newMetadata = {
-            ...metadata,
-            isCheckout: false,
-        }
+    console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-payment-succeeded for ${userId}`);
 
-        await StripeHelper.updateSubscription(subscriptionId, {
-            metadata: newMetadata,
-        });
-    }
-
-    if (isCheckout === 'true' && eventData.amount_total !== 0) {
-        console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-session-completed for ${userId}`);
-
-        ws.emit('subscription-session-completed', {
-            userId,
-            serverId,
-            customerId: customer,
-            subscriptionId: subscriptionId,
-            productId,
-            bot,
-        });
-    } else {
-        console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-payment-succeeded for ${userId}`);
-
-        ws.emit('subscription-payment-succeeded', {
-            userId,
-            serverId,
-            customerId: customer,
-            subscriptionId: subscriptionId,
-            productId,
-            bot,
-        });
-    }
+    ws.emit('subscription-payment-succeeded', {
+        userId,
+        serverId,
+        customerId: customer,
+        subscriptionId: subscriptionId,
+        productId,
+        bot,
+    });
 }
 
 function processCancel(eventData) {
