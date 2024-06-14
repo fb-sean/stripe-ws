@@ -142,6 +142,10 @@ async function processCompletedSession(eventData) {
         productId,
         bot,
     });
+
+    if (eventData.amount_total === 0) {
+        return processPayment(eventData);
+    }
 }
 
 async function processPayment(eventData) {
