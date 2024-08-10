@@ -41,7 +41,7 @@ async function fetchSubscriptions(bot = null, customerId = null) {
 
 async function fetchSubscription(bot = null, subscriptionId) {
     const response = await stripe.subscriptions.retrieve(subscriptionId);
-    const filteredSubscriptions = bot && response?.data?.metadata?.bot === bot ? response.data : null;
+    const filteredSubscriptions = bot && response?.metadata?.bot === bot ? response : null;
 
     if (!filteredSubscriptions) {
         return null;
