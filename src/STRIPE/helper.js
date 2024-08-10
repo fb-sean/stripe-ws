@@ -39,6 +39,17 @@ async function fetchSubscriptions(bot = null, customerId = null) {
     return allSubscriptions;
 }
 
+async function fetchSubscription(bot = null, subscriptionId) {
+    const response = await stripe.subscriptions.retrieve(subscriptionId);
+    const filteredSubscriptions = bot && response?.data?.metadata?.bot === bot ? response.data : null;
+
+    if (!filteredSubscriptions) {
+        return null;
+    }
+
+    return filteredSubscriptions;
+}
+
 async function createCheckout(userId, serverId = 'none', bot, plan = null) {
     const product = bots.products[bot];
     if (!product) {
@@ -129,4 +140,5 @@ module.exports = {
     fetchSubscriptions,
     createCheckout,
     cancelSubscription,
+    fetchSubscription
 }
