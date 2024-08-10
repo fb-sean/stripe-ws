@@ -39,15 +39,29 @@ async function fetchSubscriptions(bot = null, customerId = null) {
     return allSubscriptions;
 }
 
-async function fetchSubscription(bot = null, subscriptionId) {
-    const response = await stripe.subscriptions.retrieve(subscriptionId);
-    const filteredSubscriptions = bot && response?.metadata?.bot === bot ? response : null;
+async function fetchSubscription(subscriptionId, customerId) {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId).catch(() => {
+    });
+    const customer = await stripe.customers.retrieve(customerId).catch(() => {
+    });
 
-    if (!filteredSubscriptions) {
+    if (!subscription?.id || !customer?.id) {
         return null;
     }
 
-    return filteredSubscriptions;
+    return {
+        nextPayment: subscription.current_period_end,
+        lastPayment: subscription.current_period_start,
+        customer: {
+            address: customer.address,
+            email: customer.email,
+        },
+        discount: subscription.discount ? {
+            code: subscription.discount.coupon.name,
+            percent_off: subscription.discount.coupon.percent_off,
+            duration: subscription.discount.coupon.duration,
+        } : null
+    };
 }
 
 async function createCheckout(userId, serverId = 'none', bot, plan = null) {

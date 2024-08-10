@@ -74,8 +74,8 @@ module.exports = () => {
         });
     });
 
-    app.get('/subscriptions/:bot/:subscription', async (req, res) => {
-        const {bot, subscription} = req.params;
+    app.get('/subscriptions/:bot/:subscription/:customer', async (req, res) => {
+        const {bot, subscription, customer} = req.params;
 
         if (!bots.allowed.includes(bot)) {
             return res.status(400).json({
@@ -84,7 +84,7 @@ module.exports = () => {
             });
         }
 
-        const subscriptionData = await StripeHelper.fetchSubscription(bot, subscription);
+        const subscriptionData = await StripeHelper.fetchSubscription(subscription, customer);
         if (!subscriptionData) {
             return res.status(400).json({
                 status: 400,
