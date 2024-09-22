@@ -1,5 +1,4 @@
 const auth = require('../CONFIGS/auth.json');
-const bots = require('../CONFIGS/bots.json');
 const StripeHelper = require("./helper");
 
 const stripe = require('stripe')(auth.stripeAPIToken);
@@ -23,10 +22,7 @@ async function handleWebhook(req, res) {
             });
     }
 
-    const eventData = {
-        ...event.data.object,
-        ...event.data.metadata
-    };
+    const eventData = Object.assign({}, event.data.object, event.data.metadata);
 
     await delay(5000); // Might fix an issue with sub not existing
 

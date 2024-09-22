@@ -137,6 +137,8 @@ async function cancelSubscription(subscriptionId, customerId, userId, serverId, 
         return false;
     }
 
+    console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-canceled for ${userId}`);
+
     ws.emit('subscription-canceled', {
         userId,
         serverId,
