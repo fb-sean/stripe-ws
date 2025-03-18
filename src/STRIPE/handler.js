@@ -34,6 +34,8 @@ async function handleWebhook(req, res) {
             break;
         }
         case 'charge.succeeded': {
+            await delay(2000); // Might fix an issue with getting charge.succeeded before checkout.session.completed
+
             await processPayment(eventData);
 
             break;
