@@ -79,6 +79,7 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
         success_url: product.success_url ? product.success_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
         cancel_url: product.cancel_url ? product.cancel_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
         allow_promotion_codes: true,
+        automatic_tax: true,
         subscription_data: {
             metadata: {
                 productId: priceId,
