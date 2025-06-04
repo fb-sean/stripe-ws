@@ -118,7 +118,7 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
     }
 
     const session = await stripe.checkout.sessions.create({
-        customer_email: additionalData?.email ?? null,
+        customer_email: additionalData?.email ?? undefined,
         success_url: product.success_url,
         cancel_url: product.cancel_url,
         allow_promotion_codes: true,
@@ -152,71 +152,6 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
                 },
             },
         },
-        custom_fields: [
-            {
-                key: 'businessname',
-                label: {
-                    type: 'custom',
-                    custom: 'Business Name',
-                },
-                optional: true,
-                type: 'text'
-            },
-            {
-                key: 'businessemail',
-                label: {
-                    type: 'custom',
-                    custom: 'Business Email',
-                },
-                optional: true,
-                type: 'email'
-            },
-            {
-                key: 'businessphone',
-                label: {
-                    type: 'custom',
-                    custom: 'Business Phone',
-                },
-                optional: true,
-                type: 'phone'
-            },
-            {
-                key: 'businessaddress',
-                label: {
-                    type: 'custom',
-                    custom: 'Business Address',
-                },
-                optional: true,
-                type: 'text'
-            },
-            {
-                key: 'businesscity',
-                label: {
-                    type: 'custom',
-                    custom: 'Business City',
-                },
-                optional: true,
-                type: 'text'
-            },
-            {
-                key: 'businessstate',
-                label: {
-                    type: 'custom',
-                    custom: 'Business State',
-                },
-                optional: true,
-                type: 'text'
-            },
-            {
-                key: 'businesszip',
-                label: {
-                    type: 'custom',
-                    custom: 'Business Zip Code',
-                },
-                optional: true,
-                type: 'text'
-            },
-        ],
         mode: 'payment',
     });
 
