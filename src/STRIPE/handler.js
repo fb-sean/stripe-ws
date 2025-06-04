@@ -134,12 +134,14 @@ async function processCompletedSession(eventData) {
     } = metadata;
 
     try {
-        await StripeHelper.updateSubscription(subscriptionId, {
-            metadata: {
-                ...metadata,
-                isCheckout: false,
-            },
-        });
+        if (subscriptionId) {
+            await StripeHelper.updateSubscription(subscriptionId, {
+                metadata: {
+                    ...metadata,
+                    isCheckout: false,
+                },
+            });
+        }
     } catch (e) {
 
     }
