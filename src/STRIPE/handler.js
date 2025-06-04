@@ -103,8 +103,18 @@ async function processCompletedSession(eventData) {
     } = eventData;
 
     let metadata = eventData.metadata ?? null;
+    if (!metadata) {
+        const invoiceId = eventData.invoice ?? null;
+        if (invoiceId) {
+            const invoice = await stripe.invoices.retrieve(invoiceId);
+            if (invoice && invoice.metadata && invoice.metadata.userId) {
+                metadata = invoice.metadata;
+            }
+        }
+    }
+
     let subscriptionId = eventData.subscription ?? null;
-    if (!metadata || !subscriptionId) {
+    if (!metadata) {
         const subscriptions = await StripeHelper.fetchSubscriptions(null, customer);
         const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
 
@@ -163,7 +173,7 @@ async function processPayment(eventData) {
     }
 
     let subscriptionId = eventData.subscription ?? null;
-    if (!metadata && !subscriptionId) {
+    if (!metadata) {
         const subscriptions = await StripeHelper.fetchSubscriptions(null, customer);
         const subscription = Array.isArray(subscriptions) ? subscriptions[0] : subscriptions;
 
