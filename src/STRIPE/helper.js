@@ -107,6 +107,53 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
     return session.url;
 }
 
+async function createCustomCheckoutWithPrice(userId, bot, price, additionalData = {}) {
+    const product = bots.products[bot];
+    if (!product) {
+        return false;
+    }
+
+    if (!price) {
+        return false;
+    }
+
+    const session = await stripe.checkout.sessions.create({
+        success_url: product.success_url,
+        cancel_url: product.cancel_url,
+        allow_promotion_codes: true,
+        automatic_tax: {
+            enabled: true,
+        },
+        subscription_data: {
+            metadata: {
+                ...additionalData,
+                bot,
+                userId,
+                isCheckout: true,
+            }
+        },
+        metadata: {
+            ...additionalData,
+            bot,
+            userId,
+            isCheckout: true,
+        },
+        line_items: [
+            {
+                price_data: {
+                    currency: 'usd',
+                    unit_amount: price,
+                    product_data: {
+                        name: 'Custom Payment',
+                    }
+                }, quantity: 1
+            },
+        ],
+    });
+
+    return session.url;
+}
+
 async function cancelSubscription(subscriptionId, customerId, userId, serverId, bot) {
     if (!ws) return false;
 
@@ -159,5 +206,6 @@ module.exports = {
     fetchSubscriptions,
     createCheckout,
     cancelSubscription,
-    fetchSubscription
+    fetchSubscription,
+    createCustomCheckoutWithPrice
 }

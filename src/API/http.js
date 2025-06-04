@@ -39,6 +39,41 @@ module.exports = () => {
         }
     });
 
+    app.post('/create-custom', async (req, res) => {
+        const {
+            userId,
+            bot,
+            price,
+            additionalData
+        } = req.body;
+
+        if (!userId || !price) return res.status(400).json({
+            status: 400,
+            message: 'Missing parameters',
+        });
+
+        if (!bots.allowed.includes(bot)) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Invalid bot',
+            });
+        }
+
+        const link = await StripeHelper.createCustomCheckoutWithPrice(userId, bot, price, additionalData);
+
+        if (!link) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Failed to create custom checkout',
+            });
+        }
+
+        return res.status(200).send({
+            status: 200,
+            link
+        });
+    });
+
     app.post('/create', async (req, res) => {
         const {
             userId,
