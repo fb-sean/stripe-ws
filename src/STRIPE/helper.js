@@ -101,6 +101,17 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
         line_items: [
             {price: priceId, quantity: 1},
         ],
+        invoice_creation: {
+            enabled: true,
+            invoice_data: {
+                metadata: {
+                    productId: priceId,
+                    userId,
+                    serverId,
+                    bot,
+                },
+            },
+        },
         mode: product.mode ?? 'subscription',
     });
 
@@ -118,19 +129,12 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
     }
 
     const session = await stripe.checkout.sessions.create({
+        customer_email: additionalData?.email ?? null,
         success_url: product.success_url,
         cancel_url: product.cancel_url,
         allow_promotion_codes: true,
         automatic_tax: {
             enabled: true,
-        },
-        subscription_data: {
-            metadata: {
-                ...additionalData,
-                bot,
-                userId,
-                isCheckout: true,
-            }
         },
         metadata: {
             ...additionalData,
@@ -149,6 +153,82 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
                 }, quantity: 1
             },
         ],
+        invoice_creation: {
+            enabled: true,
+            invoice_data: {
+                metadata: {
+                    userId,
+                    bot,
+                    ...additionalData,
+                },
+            },
+        },
+        custom_fields: [
+            {
+                key: 'businessname',
+                label: {
+                    type: 'custom',
+                    custom: 'Business Name',
+                },
+                optional: true,
+                type: 'text'
+            },
+            {
+                key: 'businessemail',
+                label: {
+                    type: 'custom',
+                    custom: 'Business Email',
+                },
+                optional: true,
+                type: 'email'
+            },
+            {
+                key: 'businessphone',
+                label: {
+                    type: 'custom',
+                    custom: 'Business Phone',
+                },
+                optional: true,
+                type: 'phone'
+            },
+            {
+                key: 'businessaddress',
+                label: {
+                    type: 'custom',
+                    custom: 'Business Address',
+                },
+                optional: true,
+                type: 'text'
+            },
+            {
+                key: 'businesscity',
+                label: {
+                    type: 'custom',
+                    custom: 'Business City',
+                },
+                optional: true,
+                type: 'text'
+            },
+            {
+                key: 'businessstate',
+                label: {
+                    type: 'custom',
+                    custom: 'Business State',
+                },
+                optional: true,
+                type: 'text'
+            },
+            {
+                key: 'businesszip',
+                label: {
+                    type: 'custom',
+                    custom: 'Business Zip Code',
+                },
+                optional: true,
+                type: 'text'
+            },
+        ],
+        mode: 'payment',
     });
 
     return session.url;
