@@ -101,17 +101,6 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
         line_items: [
             {price: priceId, quantity: 1},
         ],
-        invoice_creation: {
-            enabled: true,
-            invoice_data: {
-                metadata: {
-                    productId: priceId,
-                    userId,
-                    serverId,
-                    bot,
-                },
-            },
-        },
         mode: product.mode ?? 'subscription',
     });
 
