@@ -82,6 +82,10 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
         automatic_tax: {
             enabled: true,
         },
+        billing_address_collection: 'required',
+        consent_collection: {
+            terms_of_service: 'required',
+        },
         subscription_data: {
             metadata: {
                 productId: priceId,
@@ -124,6 +128,10 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
         allow_promotion_codes: true,
         automatic_tax: {
             enabled: true,
+        },
+        billing_address_collection: 'required',
+        consent_collection: {
+            terms_of_service: 'required',
         },
         metadata: {
             ...additionalData,
