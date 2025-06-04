@@ -133,12 +133,16 @@ async function processCompletedSession(eventData) {
         productId,
     } = metadata;
 
-    await StripeHelper.updateSubscription(subscriptionId, {
-        metadata: {
-            ...metadata,
-            isCheckout: false,
-        },
-    });
+    try {
+        await StripeHelper.updateSubscription(subscriptionId, {
+            metadata: {
+                ...metadata,
+                isCheckout: false,
+            },
+        });
+    } catch (e) {
+
+    }
 
     console.log(`${new Date().toISOString()} -> [Websocket] => Sending subscription-session-completed for ${userId}`);
 
