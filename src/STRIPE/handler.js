@@ -167,7 +167,7 @@ async function processPayment(eventData) {
         customer,
     } = eventData;
 
-    let metadata = eventData.metadata ?? null;
+    let metadata = eventData.metadata && Object.keys(eventData.metadata).length ? eventData.metadata : null;
     if (!metadata) {
         const invoiceId = eventData.invoice ?? null;
         if (invoiceId) {
