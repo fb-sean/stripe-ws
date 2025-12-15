@@ -79,12 +79,12 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
         success_url: product.success_url ? product.success_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
         cancel_url: product.cancel_url ? product.cancel_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
         allow_promotion_codes: true,
-        automatic_tax: {
-            enabled: true,
-        },
         billing_address_collection: 'required',
         consent_collection: {
             terms_of_service: 'required',
+        },
+        managed_payments: {
+            enabled: true,
         },
         subscription_data: {
             metadata: {
@@ -106,6 +106,8 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
             {price: priceId, quantity: 1},
         ],
         mode: product.mode ?? 'subscription',
+    }, {
+        apiVersion: '2025-11-17.clover; managed_payments_preview=v1'
     });
 
     return session.url;
@@ -126,12 +128,12 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
         success_url: product.success_url,
         cancel_url: product.cancel_url,
         allow_promotion_codes: true,
-        automatic_tax: {
-            enabled: true,
-        },
         billing_address_collection: 'required',
         consent_collection: {
             terms_of_service: 'required',
+        },
+        managed_payments: {
+            enabled: true,
         },
         metadata: {
             ...additionalData,
@@ -161,6 +163,8 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
             },
         },
         mode: 'payment',
+    }, {
+        apiVersion: '2025-11-17.clover; managed_payments_preview=v1'
     });
 
     return session.url;
