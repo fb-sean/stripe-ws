@@ -63,7 +63,10 @@ module.exports = () => {
             });
         }
 
-        return res.status(307).redirect(link);
+        return res.status(200).send({
+            status: 200,
+            link
+        });
     });
 
     app.post('/create-custom', async (req, res) => {
