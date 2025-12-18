@@ -76,8 +76,8 @@ async function createCheckout(userId, serverId = 'none', bot, plan = null) {
     }
 
     const session = await stripe.checkout.sessions.create({
-        success_url: product.success_url ? product.success_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
-        cancel_url: product.cancel_url ? product.cancel_url.replace('{serverId}', serverId).replace('{userId}', userId) : undefined,
+        success_url: product.success_url ? product.success_url.replaceAll('{serverId}', serverId).replaceAll('{userId}', userId) : undefined,
+        cancel_url: product.cancel_url ? product.cancel_url.replaceAll('{serverId}', serverId).replaceAll('{userId}', userId) : undefined,
         allow_promotion_codes: true,
         billing_address_collection: 'required',
         consent_collection: {
@@ -125,8 +125,8 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
 
     const session = await stripe.checkout.sessions.create({
         customer_email: additionalData?.email ?? undefined,
-        success_url: product.success_url,
-        cancel_url: product.cancel_url,
+        success_url: product.success_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
+        cancel_url: product.cancel_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
         allow_promotion_codes: true,
         billing_address_collection: 'required',
         consent_collection: {
@@ -165,6 +165,20 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
         mode: 'payment',
     }, {
         apiVersion: '2025-11-17.clover; managed_payments_preview=v1'
+    });
+
+    return session.url;
+}
+
+async function createBillingPortalSession(customerId, bot) {
+    const product = bots.products[bot];
+    if (!product) {
+        return null;
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: product.dashboard_url ?? undefined,
     });
 
     return session.url;
@@ -223,5 +237,6 @@ module.exports = {
     createCheckout,
     cancelSubscription,
     fetchSubscription,
-    createCustomCheckoutWithPrice
+    createCustomCheckoutWithPrice,
+    createBillingPortalSession
 }

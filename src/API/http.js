@@ -39,6 +39,33 @@ module.exports = () => {
         }
     });
 
+    app.get('/customer-portal/:bot/:customer', async (req, res) => {
+        const {customer, bot} = req.params;
+
+        if (!customer || !bot) return res.status(400).json({
+            status: 400,
+            message: 'Missing parameters',
+        });
+
+        if (!bots.allowed.includes(bot)) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Invalid bot',
+            });
+        }
+
+        const link = await StripeHelper.createBillingPortalSession(customer, bot);
+
+        if (!link) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Failed to create customer portal link.',
+            });
+        }
+
+        return res.status(307).redirect(link);
+    });
+
     app.post('/create-custom', async (req, res) => {
         const {
             userId,
