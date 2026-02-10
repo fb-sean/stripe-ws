@@ -123,41 +123,47 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
         return false;
     }
 
-    const session = await stripe.checkout.sessions.create({
-        customer_email: additionalData?.email ?? undefined,
-        success_url: product.success_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
-        cancel_url: product.cancel_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
-        allow_promotion_codes: true,
-        billing_address_collection: 'required',
-        consent_collection: {
-            terms_of_service: 'required',
-        },
-        managed_payments: {
-            enabled: true,
-        },
-        metadata: {
-            ...additionalData,
-            bot,
-            userId,
-            isCheckout: true,
-        },
-        line_items: [
-            {
-                price_data: {
-                    currency: 'usd',
-                    unit_amount: price,
-                    product_data: {
-                        name: 'Custom Payment',
-                    }
-                }, quantity: 1
+    try {
+        const session = await stripe.checkout.sessions.create({
+            customer_email: additionalData?.email ?? undefined,
+            success_url: product.success_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
+            cancel_url: product.cancel_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
+            allow_promotion_codes: true,
+            billing_address_collection: 'required',
+            consent_collection: {
+                terms_of_service: 'required',
             },
-        ],
-        mode: 'payment',
-    }, {
-        apiVersion: '2025-11-17.clover; managed_payments_preview=v1'
-    });
+            managed_payments: {
+                enabled: true,
+            },
+            metadata: {
+                ...additionalData,
+                bot,
+                userId,
+                isCheckout: true,
+            },
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        unit_amount: price,
+                        tax_behavior: 'exclusive',
+                        product_data: {
+                            name: 'Custom Payment',
+                        },
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+        }, {
+            apiVersion: '2025-11-17.clover; managed_payments_preview=v1'
+        });
+    } catch (e) {
+        console.log(e);
+    }
 
-    return session.url;
+    return session?.url ?? null;
 }
 
 async function createBillingPortalSession(customerId, bot) {
