@@ -152,16 +152,6 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
                 }, quantity: 1
             },
         ],
-        invoice_creation: {
-            enabled: true,
-            invoice_data: {
-                metadata: {
-                    userId,
-                    bot,
-                    ...additionalData,
-                },
-            },
-        },
         mode: 'payment',
     }, {
         apiVersion: '2025-11-17.clover; managed_payments_preview=v1'
