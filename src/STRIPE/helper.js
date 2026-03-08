@@ -151,6 +151,7 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
                         tax_behavior: 'exclusive',
                         product_data: {
                             name: 'Custom Payment',
+                            tax_code: 'txcd_10103001',
                         },
                     },
                     quantity: 1,
