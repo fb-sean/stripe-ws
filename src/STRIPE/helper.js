@@ -123,8 +123,9 @@ async function createCustomCheckoutWithPrice(userId, bot, price, additionalData 
         return false;
     }
 
+    let session = null;
     try {
-        const session = await stripe.checkout.sessions.create({
+        session = await stripe.checkout.sessions.create({
             customer_email: additionalData?.email ?? undefined,
             success_url: product.success_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
             cancel_url: product.cancel_url.replaceAll('{userId}', userId).replaceAll('{serverId}', additionalData.serverId ?? ''),
